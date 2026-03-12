@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webkus API Documentation</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f1115', // Main Background
+                            800: '#161b22', // Sidebar/Cards Background
+                            700: '#21262d', // Borders
+                            600: '#30363d', // Lighter Borders
+                        },
+                        primary: {
+                            DEFAULT: '#FACC15', // Yellow 400
+                            hover: '#EAB308', // Yellow 500
+                        },
+                        secondary: {
+                            DEFAULT: '#EF4444', // Red 500
+                            hover: '#DC2626', // Red 600
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f1115;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FACC15;
+        }
+
+        /* Syntax Highlighting overrides */
+        .hljs {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 5rem;
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-gray-300 font-sans antialiased">
+
+    <!-- Mobile Header -->
+    <header class="md:hidden fixed top-0 w-full bg-dark-800 border-b border-dark-700 z-50 flex items-center justify-between p-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-dark-900 font-bold">W</div>
+            <h1 class="font-bold text-white tracking-wide">Webkus API</h1>
+        </div>
+        <button id="mobile-menu-btn" class="text-gray-400 hover:text-primary transition-colors focus:outline-none">
+            <i data-lucide="menu"></i>
+        </button>
+    </header>
+
+    <!-- Sidebar / Drawer -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-screen w-64 bg-dark-800 border-r border-dark-700 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40 overflow-y-auto">
+        <div class="p-6 hidden md:flex items-center gap-3 border-b border-dark-700">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-dark-900 font-bold text-lg">W</div>
+            <h1 class="font-bold text-white text-lg tracking-wide">Webkus API</h1>
+        </div>
+
+        <nav class="p-4 pt-20 md:pt-4 space-y-8">
+            <!-- Getting Started -->
+            <div>
+                <h5 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">Pengenalan</h5>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#pendahuluan" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors">Pendahuluan</a>
+                    </li>
+                    <li>
+                        <a href="#konsep-kunci" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors">Konsep Kunci: local_id</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Endpoints 1 -->
+            <div>
+                <h5 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">1. Data Toko & Produk</h5>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#get-info" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">GET</span>
+                            Info Toko
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#get-data" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">GET</span>
+                            Data Produk
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Endpoints 2 -->
+            <div>
+                <h5 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">2. Manajemen Keranjang</h5>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#post-cart" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-primary/20 text-primary px-1.5 py-0.5 rounded">POST</span>
+                            Tambah Item
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#get-cart" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">GET</span>
+                            Lihat Keranjang
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#patch-cart" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded">PATCH</span>
+                            Ubah Catatan
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#delete-cart" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-secondary/20 text-secondary px-1.5 py-0.5 rounded">DEL</span>
+                            Hapus Item
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Endpoints 3 -->
+            <div>
+                <h5 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">3. Pesanan & Checkout</h5>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#post-checkout" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-primary/20 text-primary px-1.5 py-0.5 rounded">POST</span>
+                            Checkout
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#get-orders" class="nav-link block px-2 py-1.5 text-sm text-gray-400 hover:text-primary rounded transition-colors flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">GET</span>
+                            Status Pesanan
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Overlay for mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 p-6 md:p-10 pt-24 md:pt-10 max-w-5xl mx-auto">
+        
+        <!-- Pendahuluan -->
+        <section id="pendahuluan" class="mb-16">
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Dokumentasi API Webkus <span class="text-primary">(Unofficial)</span></h1>
+                <p class="text-lg text-gray-400">by Elfa Digital</p>
+            </div>
+            
+            <p class="mb-4 leading-relaxed">
+                Dokumentasi ini dibuat berdasarkan hasil rekayasa balik (<i class="text-gray-400">reverse-engineering</i>) dari situs web <code class="bg-dark-800 text-primary px-2 py-1 rounded text-sm font-mono border border-dark-700">elfa-dev.webkus.com</code> (Webkus v3.4) melalui serangkaian panggilan API nyata pada tanggal 11 Maret 2026. Gunakan sebagai panduan untuk memahami bagaimana cara berinteraksi dengan backend Webkus.
+            </p>
+
+            <div class="bg-dark-800 border border-dark-700 rounded-lg p-5 mt-6 flex items-start gap-4 shadow-lg shadow-black/20">
+                <div class="mt-1 text-primary"><i data-lucide="server"></i></div>
+                <div>
+                    <h3 class="font-semibold text-white mb-1">Base URL</h3>
+                    <code class="text-sm font-mono text-gray-300">https://<span class="text-primary">{nama-toko-anda}</span>.webkus.com</code>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-dark-700 mb-16">
+
+        <!-- Konsep Kunci -->
+        <section id="konsep-kunci" class="mb-16">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <i data-lucide="key" class="text-primary"></i>
+                Konsep Kunci: <code class="text-primary text-xl tracking-wide ml-2 bg-dark-800 px-2 py-0.5 rounded">local_id</code>
+            </h2>
+            <p class="mb-6 leading-relaxed">
+                Sebagian besar interaksi API yang terkait dengan pengguna (seperti keranjang belanja) tidak menggunakan autentikasi akun pengguna tradisional. Sebagai gantinya, Webkus mengidentifikasi setiap pengunjung unik menggunakan sebuah <code class="text-primary">local_id</code>.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-dark-800 border border-dark-700 rounded-lg p-5">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4">
+                        <i data-lucide="fingerprint"></i>
+                    </div>
+                    <h3 class="font-semibold text-white mb-2">Apa itu local_id?</h3>
+                    <p class="text-sm text-gray-400">Sebuah string unik yang secara otomatis dibuat oleh Webkus untuk setiap pengunjung baru.</p>
+                </div>
+                
+                <div class="bg-dark-800 border border-dark-700 rounded-lg p-5">
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+                        <i data-lucide="hard-drive"></i>
+                    </div>
+                    <h3 class="font-semibold text-white mb-2">Penyimpanan</h3>
+                    <p class="text-sm text-gray-400">Disimpan di dalam <code class="text-primary">localStorage</code> browser pengunjung. Digunakan untuk mengambil data keranjang kembali.</p>
+                </div>
+
+                <div class="bg-dark-800 border border-dark-700 rounded-lg p-5 border-b-4 border-b-secondary">
+                    <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-4">
+                        <i data-lucide="download"></i>
+                    </div>
+                    <h3 class="font-semibold text-white mb-2">Cara Mendapatkan</h3>
+                    <p class="text-sm text-gray-400">Panggil endpoint <code class="text-primary">GET /api/get-data/-</code>. Tanda <code class="text-secondary">-</code> menandakan permintaan ID baru.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-dark-700 mb-16">
+
+        <!-- 1. Data Toko & Produk -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-white mb-2">1. Data Toko & Produk</h2>
+            <p class="text-gray-400">Endpoint ini digunakan untuk mengambil informasi publik mengenai toko dan produk.</p>
+        </div>
+
+        <!-- GET /api/info -->
+        <section id="get-info" class="mb-16 endpoint-card">
+            <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20">
+                <!-- Header -->
+                <div class="border-b border-dark-700 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-dark-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 border border-blue-500/50 px-3 py-1 rounded text-sm font-bold tracking-wider">GET</span>
+                        <h3 class="text-lg md:text-xl font-mono text-white break-all">/api/info</h3>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Informasi Konfigurasi Dasar</span>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-4 md:p-6 space-y-6">
+                    <p class="text-gray-300">Mengambil informasi konfigurasi dasar sebuah toko (nama toko, deskripsi, kontak, logo).</p>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="terminal" class="w-4 h-4 text-primary"></i> Contoh Request (cURL)
+                        </h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-3 right-3 text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 p-1.5 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Copy code">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-4 overflow-x-auto"><code class="language-bash">curl -L "https://elfa-dev.webkus.com/api/info"</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="file-json" class="w-4 h-4 text-green-400"></i> Respons Sukses (200 OK)
+                        </h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-3 right-3 text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 p-1.5 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Copy code">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-4 overflow-x-auto"><code class="language-json">{
+  "bootstrap_css": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css",
+  "contact_urls": "https://wa.me/085891113984,https://instagram.com/elfa_digital",
+  "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  "extended_css": "",
+  "extended_html": "",
+  "extended_js": "",
+  "logo": "https://img.webkus.com/eciadmpiq/e6iqxaniq.webp",
+  "name": "Elfa Dev"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GET /api/get-data/{local_id} -->
+        <section id="get-data" class="mb-16 endpoint-card">
+            <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20">
+                <div class="border-b border-dark-700 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-dark-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 border border-blue-500/50 px-3 py-1 rounded text-sm font-bold tracking-wider">GET</span>
+                        <h3 class="text-lg md:text-xl font-mono text-white break-all">/api/get-data/<span class="text-primary">{local_id}</span></h3>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Muat Data & Mulai Sesi</span>
+                </div>
+                
+                <div class="p-4 md:p-6 space-y-6">
+                    <p class="text-gray-300">Endpoint utama untuk memuat data halaman depan dan memulai sesi pengguna.</p>
+
+                    <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
+                        <h4 class="font-semibold text-white mb-2">Parameter URL</h4>
+                        <ul class="space-y-2 text-sm text-gray-300">
+                            <li class="flex items-start gap-2">
+                                <code class="text-primary bg-dark-800 px-1.5 py-0.5 rounded">local_id</code>
+                                <div>
+                                    <span class="text-gray-500 italic">(string, wajib)</span> ID unik pengunjung. Gunakan <code class="text-secondary font-bold">-</code> untuk mendapatkan ID baru.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-primary/5 border-l-4 border-primary p-4 rounded-r-lg">
+                        <h4 class="font-semibold text-primary mb-2 flex items-center gap-2">
+                            <i data-lucide="git-branch" class="w-4 h-4"></i> Alur Implementasi
+                        </h4>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-300 text-sm">
+                            <li>Saat halaman dimuat, periksa <code>localStorage</code> untuk <code>local_id</code>.</li>
+                            <li>Jika <strong>tidak ada</strong>, panggil menggunakan <code>-</code> (GET /api/get-data/-).</li>
+                            <li>Jika <strong>ada</strong>, panggil menggunakan ID tersimpan (GET /api/get-data/ID_YANG_TERSIMPAN).</li>
+                            <li>Simpan <code>local_id</code> dari respons ke storage untuk panggilan selanjutnya.</li>
+                        </ol>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="terminal" class="w-4 h-4 text-primary"></i> Contoh Request (ID Baru)
+                        </h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-3 right-3 text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 p-1.5 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Copy code">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-4 overflow-x-auto"><code class="language-bash">curl -L "https://elfa-dev.webkus.com/api/get-data/-"</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="file-json" class="w-4 h-4 text-green-400"></i> Respons Sukses (Raw)
+                        </h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-3 right-3 text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 p-1.5 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Copy code">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-4 overflow-x-auto max-h-96"><code class="language-json">{
+  "cart_count": 0,
+  "local_id": "1773180573477_829959",
+  "products": [
+    {
+      "id": "e7i9ybiq",
+      "name": "Tes 1",
+      "price": 500,
+      "discount": 0,
+      "description": "untuk Tes order",
+      "photo": "https://img.webkus.com/eciadmpiq/e6iqxaniq.webp",
+      "more_photos": [],
+      "available_stock": 1,
+      "unique_stock": false,
+      "sold_count": 2,
+      "category": "tes-order"
+    },
+    {
+      "id": "e8ij7aiq",
+      "name": "Template Webkus ",
+      "price": 25000,
+      "discount": 0,
+      "description": "Tes",
+      "photo": "https://img.webkus.com/eciadmpiq/ehiae1niq.webp",
+      "more_photos": [],
+      "available_stock": 1,
+      "unique_stock": false,
+      "sold_count": 0,
+      "category": "template"
+    }
+  ],
+  "social_proofs": [],
+  "testimonials": [
+    {
+      "id": "euir7miq",
+      "website_id": "e7i966iq",
+      "name": "Her",
+      "message": "Testi1",
+      "position": 1,
+      "updated_at": "0001-01-01T00:00:00Z"
+    }
+  ],
+  "categories": [
+    "tes-order",
+    "template",
+    "canva",
+    "capcut",
+    "netflix"
+  ]
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-dark-700 mb-16">
+
+        <!-- 2. Manajemen Keranjang -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-white mb-2">2. Manajemen Keranjang (Cart)</h2>
+            <p class="text-gray-400">Semua endpoint di bawah ini memerlukan <code class="text-primary bg-dark-800 px-1 rounded">local_id</code> untuk mengidentifikasi keranjang milik siapa.</p>
+        </div>
+
+        <!-- POST /api/carts/{local_id} -->
+        <section id="post-cart" class="mb-16 endpoint-card">
+            <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20 border-l-4 border-l-primary">
+                <div class="border-b border-dark-700 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-dark-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-primary/20 text-primary border border-primary/50 px-3 py-1 rounded text-sm font-bold tracking-wider">POST</span>
+                        <h3 class="text-lg md:text-xl font-mono text-white break-all">/api/carts/<span class="text-primary">{local_id}</span></h3>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Tambah Item ke Keranjang</span>
+                </div>
+                
+                <div class="p-4 md:p-6 space-y-6">
+                    <p class="text-gray-300">Menambahkan sebuah produk ke dalam keranjang. Jika <code class="text-gray-400">product_id</code> tersebut sudah ada di dalam keranjang, maka panggilan ini akan <strong>menambah jumlah (quantity)</strong> produk tersebut.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider">Headers</h4>
+                            <div class="bg-dark-900 border border-dark-700 rounded-lg p-3 text-sm font-mono text-gray-300">
+                                Content-Type: application/json
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider">Payload</h4>
+                            <div class="relative group">
+                                <button class="copy-btn absolute top-2 right-2 text-gray-400 hover:text-white bg-dark-700 p-1 rounded opacity-0 group-hover:opacity-100"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                                <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-sm overflow-x-auto"><code class="language-json">{
+  "product_id": "ID_PRODUK_YANG_AKAN_DITAMBAH"
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="terminal" class="w-4 h-4 text-primary"></i> cURL Simulasi
+                        </h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-3 right-3 text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 p-1.5 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Copy code">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-4 overflow-x-auto"><code class="language-bash">curl -L -X POST "https://elfa-dev.webkus.com/api/carts/1773180573477_829959" \
+-H "Content-Type: application/json" \
+-d '{"product_id": "e7i9ybiq"}'</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider">Respons Sukses</h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-2 right-2 text-gray-400 hover:text-white bg-dark-700 p-1 rounded opacity-0 group-hover:opacity-100"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-sm overflow-x-auto"><code class="language-json">{
+  "cart_count": 1
+}</code></pre>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 italic">*Catatan: cart_count adalah jumlah jenis/item unik, bukan total kuantitas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GET /api/carts/{local_id} -->
+        <section id="get-cart" class="mb-16 endpoint-card">
+            <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20">
+                <div class="border-b border-dark-700 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-dark-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 border border-blue-500/50 px-3 py-1 rounded text-sm font-bold tracking-wider">GET</span>
+                        <h3 class="text-lg md:text-xl font-mono text-white break-all">/api/carts/<span class="text-primary">{local_id}</span></h3>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Lihat Detail Keranjang</span>
+                </div>
+                
+                <div class="p-4 md:p-6 space-y-6">
+                    <p class="text-gray-300">Mengambil daftar item yang ada di dalam keranjang seorang pengunjung. <code class="text-primary">id</code> di level atas pada setiap item adalah <code>cart_item_id</code> yang digunakan untuk operasi PATCH/DELETE.</p>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="file-json" class="w-4 h-4 text-green-400"></i> Respons Sukses
+                        </h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-3 right-3 text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 p-1.5 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Copy code">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-4 overflow-x-auto max-h-80"><code class="language-json">{
+  "carts": [
+    {
+      "id": "4qiaxe7iq",
+      "local_id": "1773180573477_829959",
+      "product": {
+        "id": "e7i9ybiq",
+        "website_id": "e7i966iq",
+        "name": "Tes 1",
+        "photo": "https://img.webkus.com/eciadmpiq/e6iqxaniq.webp",
+        "more_photos": [],
+        "description": "untuk Tes order",
+        "price": 500,
+        "discount": 0,
+        "position": 1,
+        "unique_stock": false,
+        "available_stock": 1,
+        "sold_count": 2,
+        "stock_guide": "Hanya untuk tes",
+        "category": "tes-order",
+        "created_at": "2025-12-24T09:16:22.086Z",
+        "updated_at": "2026-03-09T13:49:02.923Z"
+      },
+      "product_id": "e7i9ybiq",
+      "quantity": 1,
+      "message": "",
+      "created_at": "2026-03-10T22:10:18.561Z"
+    }
+  ]
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PATCH & DELETE Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            
+            <!-- PATCH -->
+            <section id="patch-cart" class="endpoint-card h-full">
+                <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20 h-full flex flex-col border-t-4 border-t-orange-500">
+                    <div class="border-b border-dark-700 p-4 bg-dark-800/50">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-orange-500/20 text-orange-400 border border-orange-500/50 px-2 py-0.5 rounded text-xs font-bold tracking-wider">PATCH</span>
+                            <span class="text-sm text-gray-400 font-medium">Ubah Catatan Item</span>
+                        </div>
+                        <h3 class="text-sm font-mono text-white break-all">/api/carts/<span class="text-primary">{local_id}</span>/<span class="text-orange-400">{cart_item_id}</span></h3>
+                    </div>
+                    
+                    <div class="p-4 flex-grow flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <p class="text-gray-300 text-sm">Mengubah catatan (message) pada sebuah item di keranjang.</p>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500 mb-2 uppercase">Payload</h4>
+                                <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-sm overflow-x-auto"><code class="language-json">{
+  "message": "Ini adalah catatan baru untuk item ini."
+}</code></pre>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="text-xs font-semibold text-gray-500 mb-2 uppercase">Contoh Request</h4>
+                                <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-xs overflow-x-auto"><code class="language-bash">curl -L -X PATCH "https://elfa-dev.webkus.com/api/carts/1773180573477_829959/4qiaxe7iq" \
+-H "Content-Type: application/json" \
+-d '{"message": "Catatan baru."}'</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DELETE -->
+            <section id="delete-cart" class="endpoint-card h-full">
+                <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20 h-full flex flex-col border-t-4 border-t-secondary">
+                    <div class="border-b border-dark-700 p-4 bg-dark-800/50">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-secondary/20 text-secondary border border-secondary/50 px-2 py-0.5 rounded text-xs font-bold tracking-wider">DELETE</span>
+                            <span class="text-sm text-gray-400 font-medium">Kurangi Qty / Hapus</span>
+                        </div>
+                        <h3 class="text-sm font-mono text-white break-all">/api/carts/<span class="text-primary">{local_id}</span>/<span class="text-secondary">{cart_item_id}</span></h3>
+                    </div>
+                    
+                    <div class="p-4 flex-grow flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <p class="text-gray-300 text-sm">Mengurangi jumlah (quantity) item. Jika quantity mencapai 1, maka panggilan ini akan <strong>menghapus</strong> item dari keranjang.</p>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500 mb-2 uppercase">Contoh Request</h4>
+                                <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-xs overflow-x-auto"><code class="language-bash">curl -L -X DELETE "https://elfa-dev.webkus.com/api/carts/1773180573477_829959/4qiaxe7iq"</code></pre>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500 mb-2 uppercase">Respons (Raw)</h4>
+                                <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-xs overflow-x-auto max-h-32"><code class="language-json">{
+  "cart": {
+    "id": "4qiaxe7iq",
+    "local_id": "1773180573477_829959",
+    "product_id": "e7i9ybiq",
+    "quantity": 1,
+    "message": "",
+    "created_at": "2026-03-10T22:10:18.561Z"
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <hr class="border-dark-700 mb-16">
+
+        <!-- 3. Pesanan & Checkout -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-white mb-2">3. Pesanan & Checkout</h2>
+            <p class="text-gray-400">Proses terakhir dalam alur transaksi dari keranjang menjadi pesanan nyata.</p>
+        </div>
+
+        <!-- POST /api/checkout/{local_id} -->
+        <section id="post-checkout" class="mb-16 endpoint-card">
+            <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20 border-l-4 border-l-primary">
+                <div class="border-b border-dark-700 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-dark-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-primary/20 text-primary border border-primary/50 px-3 py-1 rounded text-sm font-bold tracking-wider">POST</span>
+                        <h3 class="text-lg md:text-xl font-mono text-white break-all">/api/checkout/<span class="text-primary">{local_id}</span></h3>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Buat Pesanan Baru</span>
+                </div>
+                
+                <div class="p-4 md:p-6 space-y-6">
+                    <p class="text-gray-300">Membuat pesanan baru dari <strong>semua item</strong> yang ada di keranjang seorang pengunjung.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider">Payload Data Pembeli</h4>
+                            <div class="relative group">
+                                <button class="copy-btn absolute top-2 right-2 text-gray-400 hover:text-white bg-dark-700 p-1 rounded opacity-0 group-hover:opacity-100"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                                <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-sm overflow-x-auto"><code class="language-json">{
+  "name": "Nama Pelanggan",
+  "email": "email@pelanggan.com",
+  "phone": "081234567890"
+}</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider">cURL Simulasi</h4>
+                            <div class="relative group h-[calc(100%-2rem)]">
+                                <button class="copy-btn absolute top-2 right-2 text-gray-400 hover:text-white bg-dark-700 p-1 rounded opacity-0 group-hover:opacity-100"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                                <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-3 text-xs overflow-x-auto h-full"><code class="language-bash">curl -L -X POST "https://elfa-dev.webkus.com/api/checkout/1773180573477_829959" \
+-H "Content-Type: application/json" \
+-d '{"name": "Budi Tester", "email": "budi.tester@example.com", "phone": "081234567891"}'</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="file-json" class="w-4 h-4 text-green-400"></i> Respons Sukses (Status: pending)
+                        </h4>
+                        <div class="relative group">
+                            <button class="copy-btn absolute top-3 right-3 text-gray-400 hover:text-white bg-dark-700 hover:bg-dark-600 p-1.5 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" title="Copy code">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <pre class="bg-[#0d1117] border border-dark-700 rounded-lg p-4 overflow-x-auto max-h-96"><code class="language-json">{
+  "order": {
+    "id": "4qiax4ciqnuppel",
+    "user_id": "eciadmpiq",
+    "website_id": "e7i966iq",
+    "product_id": "e7i9ybiq",
+    "status": "pending",
+    "description": "Tes 1",
+    "name": "Budi Tester",
+    "email": "budi.tester@example.com",
+    "phone": "081234567891",
+    "message": "",
+    "price": 500,
+    "qr_string": "00020101021226610016ID.CO.SHOPEE.WWW01189360091800216005230208216005230303UME51440014ID.CO.QRIS.WWW0215ID10243228429300303UME5204792953033605406814.005802ID5907Pakasir6012KAB. KEBUMEN6105543926222051810808137542205048363043210",
+    "fee": 314,
+    "total_payment": 814,
+    "va_provider": "BRI",
+    "va_number": "",
+    "va_fee": 0,
+    "va_total_payment": 0,
+    "expires_at": "2026-03-10T23:11:44.59979989Z",
+    "received": 0,
+    "paid_at": null,
+    "created_at": "2026-03-10T22:11:44.896Z",
+    "items": [
+      {
+        "product_id": "e7i9ybiq",
+        "product_name": "Tes 1",
+        "photo": "https://img.webkus.com/eciadmpiq/e6iqxaniq.webp",
+        "price": 500,
+        "discount": 0,
+        "message": "",
+        "quantity": 1
+      }
+    ]
+  }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GET /api/orders/{order_id} -->
+        <section id="get-orders" class="mb-16 endpoint-card">
+            <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden shadow-lg shadow-black/20">
+                <div class="border-b border-dark-700 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-dark-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 border border-blue-500/50 px-3 py-1 rounded text-sm font-bold tracking-wider">GET</span>
+                        <h3 class="text-lg md:text-xl font-mono text-white break-all">/api/orders/<span class="text-primary">{order_id}</span></h3>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">Detail & Status Pesanan</span>
+                </div>
+                
+                <div class="p-4 md:p-6 space-y-6">
+                    <p class="text-gray-300">Mengambil detail sebuah pesanan, baik yang masih <code class="text-yellow-500">pending</code> maupun yang sudah <code class="text-green-500">completed</code>. Perbedaan utamanya ada pada data pengiriman digital yang akan muncul jika pesanan sudah selesai dibayar.</p>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <!-- Pending -->
+                        <div class="border border-dark-700 rounded-lg overflow-hidden flex flex-col">
+                            <div class="bg-dark-900 p-3 border-b border-dark-700 flex justify-between items-center">
+                                <span class="text-sm font-semibold text-white">Contoh: Pending</span>
+                                <span class="bg-yellow-500/20 text-yellow-500 text-xs px-2 py-0.5 rounded">Menunggu Pembayaran</span>
+                            </div>
+                            <div class="p-3 border-b border-dark-700 bg-[#0d1117]/50">
+                                <pre class="text-xs text-gray-300 overflow-x-auto"><code class="language-bash">curl -L "https://elfa-dev.webkus.com/api/orders/4qiax4ciqnuppel"</code></pre>
+                            </div>
+                            <div class="relative group flex-grow">
+                                <button class="copy-btn absolute top-2 right-2 text-gray-400 hover:text-white bg-dark-700 p-1 rounded opacity-0 group-hover:opacity-100"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                                <pre class="bg-[#0d1117] p-4 text-xs overflow-x-auto h-80"><code class="language-json">{
+  "cart_count": 0,
+  "order": {
+    "id": "4qiax4ciqnuppel",
+    "status": "pending",
+    "name": "Budi Tester",
+    "email": "budi.tester@example.com",
+    "phone": "081234567891",
+    "price": 500,
+    "fee": 314,
+    "total_payment": 814,
+    "expires_at": "2026-03-10T23:11:44.6Z",
+    "items": [
+      {
+        "product_id": "e7i9ybiq",
+        "product_name": "Tes 1",
+        "photo": "https://img.webkus.com/eciadmpiq/e6iqxaniq.webp",
+        "price": 500,
+        "discount": 0,
+        "message": "",
+        "quantity": 1
+      }
+    ],
+    "receipt": ""
+  }
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- Completed -->
+                        <div class="border border-dark-700 rounded-lg overflow-hidden flex flex-col">
+                            <div class="bg-dark-900 p-3 border-b border-dark-700 flex justify-between items-center">
+                                <span class="text-sm font-semibold text-white">Contoh: Completed</span>
+                                <span class="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded">Berhasil Dibayar</span>
+                            </div>
+                            <div class="p-3 border-b border-dark-700 bg-[#0d1117]/50">
+                                <pre class="text-xs text-gray-300 overflow-x-auto"><code class="language-bash">curl -L "https://elfa-dev.webkus.com/api/orders/4qimytiq2zogx4"</code></pre>
+                            </div>
+                            <div class="relative group flex-grow">
+                                <button class="copy-btn absolute top-2 right-2 text-gray-400 hover:text-white bg-dark-700 p-1 rounded opacity-0 group-hover:opacity-100"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                                <pre class="bg-[#0d1117] p-4 text-xs overflow-x-auto h-80"><code class="language-json">{
+  "cart_count": 0,
+  "order": {
+    "id": "4qimytiq2zogx4",
+    "status": "completed",
+    "name": "elfadigitaladmin",
+    "email": "elfadigitaladmin@telegram.org",
+    "phone": "5825795221",
+    "price": 500,
+    "fee": 314,
+    "total_payment": 814,
+    "items": [
+      {
+        "product_id": "e7i9ybiq",
+        "product_name": "Tes 1",
+        "photo": "https://img.webkus.com/eciadmpiq/e6iqxaniq.webp",
+        "price": 500,
+        "discount": 0,
+        "message": "",
+        "quantity": 1,
+        "file_value": "Email : tesorder@tes.xyz\nPassword : masuk123"
+      }
+    ],
+    "receipt": "\n**Tes 1, 1 pcs**\n\n```\nPetunjuk & Ketentuan:\nHanya untuk tes\n```\n\n```\nEmail : tesorder@tes.xyz\nPassword : masuk123\n```\n"
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-dark-800 border-l-4 border-l-primary p-4 rounded-r-lg mt-6">
+                        <p class="text-sm text-gray-300">
+                            <strong><i data-lucide="info" class="inline w-4 h-4 text-primary"></i> Perhatian:</strong> Pada pesanan <code>completed</code>, array <code>items</code> akan berisi field tambahan <code>file_value</code>, dan object <code>order</code> akan berisi field <code>receipt</code>. Gunakan data ini untuk menampilkan produk digital kepada pembeli.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-20 pt-8 border-t border-dark-700 text-center text-sm text-gray-500 pb-10">
+            <p>&copy; 2026 Elfa Digital. Dokumen ini adalah rekayasa balik untuk tujuan pembelajaran & integrasi.</p>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Initialize Highlight.js
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((el) => {
+                hljs.highlightElement(el);
+            });
+        });
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        btn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Close menu when a link is clicked on mobile
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if(window.innerWidth < 768) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // Copy to Clipboard Functionality
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Find the closest code block within the same parent
+                const pre = button.nextElementSibling;
+                const code = pre.querySelector('code').innerText;
+                
+                // Copy logic
+                navigator.clipboard.writeText(code).then(() => {
+                    // Visual feedback
+                    const originalHTML = button.innerHTML;
+                    button.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-400"></i>';
+                    lucide.createIcons();
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalHTML;
+                        lucide.createIcons();
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            });
+        });
+
+        // Simple Scrollspy for active links
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("text-primary", "bg-dark-700");
+                if (link.getAttribute("href").includes(current) && current !== "") {
+                    link.classList.add("text-primary", "bg-dark-700");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
