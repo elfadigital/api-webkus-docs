@@ -91,8 +91,14 @@
             <h2 class="text-xl font-bold text-white mb-2">Scan QRIS</h2>
             <p class="text-sm text-gray-400 mb-6">Buka aplikasi M-Banking atau e-Wallet Anda (GoPay, OVO, Dana, ShopeePay), lalu scan kode di bawah.</p>
             
-            <div class="bg-white p-4 rounded-2xl inline-block mb-6 shadow-xl">
+            <div class="bg-white p-4 rounded-2xl inline-block mb-4 shadow-xl">
                 <div id="qrcode"></div>
+            </div>
+            
+            <div class="mb-6">
+                 <button id="btn-download-qr" class="text-sm bg-dark-700 hover:bg-dark-600 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 mx-auto transition-colors border border-dark-600">
+                    <i data-lucide="download" class="w-4 h-4"></i> Simpan QRIS
+                 </button>
             </div>
 
             <div class="bg-dark-900 border border-dark-700 rounded-xl py-4 mb-8">
@@ -163,6 +169,27 @@
         const formatRupiah = (number) => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         }
+
+        // Fitur Download QR
+        document.getElementById('btn-download-qr').addEventListener('click', () => {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = 'QRIS-Donasi-Elfa-Digital.png';
+                link.href = image;
+                link.click();
+            } else {
+                // Fallback untuk device lama (jika library render img)
+                const img = document.querySelector('#qrcode img');
+                if(img && img.src){
+                    const link = document.createElement('a');
+                    link.download = 'QRIS-Donasi-Elfa-Digital.png';
+                    link.href = img.src;
+                    link.click();
+                }
+            }
+        });
 
         // Proses Pembayaran
         btnPay.addEventListener('click', async () => {
